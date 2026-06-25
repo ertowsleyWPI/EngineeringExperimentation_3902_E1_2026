@@ -16,17 +16,15 @@
 */
 
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <SSD1306Ascii.h>
+#include <SSD1306AsciiWire.h>
 #include <Adafruit_VL53L0X.h>
 
 //OLED SETTINGS
 
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_RESET -1
+#define I2C_ADDRESS 0x3C
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+SSD1306AsciiWire display;
 
 //Global Variables 
 
@@ -44,16 +42,11 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  {
-    Serial.println(F("SSD1306 Allocation Failed"));
-    while (true);
-  }
-
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.display();
+  Wire.begin();
+  display.begin(&Adafruit128x64, I2C_ADDRESS);
+  display.setFont(Adafruit5x7);
+  display.clear();
+  display.println("Initial Boot");
 
   // wait until serial port opens for native USB devices
   while (!Serial) {
@@ -91,7 +84,7 @@ void loop() {
 
   duration = pulseIn(echoPin, HIGH); // Read the duration of the echo pulse (in microseconds)
 
-  distanceUS = (duration * 0.0343) / 2;
+  distanceUS = 10 * (duration * 0.0343) / 2;
 
   //ToF Sensor Related
   
@@ -111,22 +104,21 @@ void loop() {
     Serial.print(F(" , "));
     Serial.println(distanceUS);
 
-  delay(1000); // to make debugging easier
+  delay(5); // to make debugging easier
 
   //OLED Output
 
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setCursor(0,0);
-  display.setCursor(0, 20);
-  display.println(F("ToF Distance: "));
+  display.clear(); // Clears the screen directly
+  display.setCursor(0, 0); // Back to top left
+  
+  display.println("ToF Distance: ");
   display.print(distanceToF);
-  display.println(F(" mm"));
-  display.println(F("US Distance: "));
+  display.println(" mm");
+  
+  display.println("US Distance: ");
   display.print(distanceUS);
-  display.println(F(" cm"));
-
-  display.display();
-  delay(100);
+  display.println(" mm");
+  
+  // Removed display.display();
 
 }
