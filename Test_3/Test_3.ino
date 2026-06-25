@@ -7,6 +7,12 @@
   Board: (Originally wrote for a Arduino Uno R4 (or R3), changed to a Nano for the remainder of this experiment)
   Component: Time of Flight Distance Sensor (GY-530 base on VL53L0X)
   Library: https://github.com/adafruit/Adafruit_VL53L0X  (Adafruit_VL53L0X by Adafruit)
+
+
+
+  Update 1: Got the ToF Sensor functioning, had to solder the board
+
+
 */
 
 
@@ -32,18 +38,24 @@ void setup() {
   }
 
   Serial.println(F("VL53L0X API Simple Ranging example\n\n"));
+
+  Serial.print("Time in Milliseconds");
+  Serial.print(" , ");
+  Serial.println("Distance");
+
 }
 
 
 void loop() {
   VL53L0X_RangingMeasurementData_t measure;
 
-  Serial.print("Reading a measurement... ");
+  Serial.print(millis() + " ");
   lox.rangingTest(&measure, false);  // pass in 'true' to get debug data printout!
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print("Distance (mm): ");
-    Serial.println(measure.RangeMilliMeter);
+    int distanceToV = measure.RangeMilliMeter;
+    Serial.println(distanceToV);
   } else {
     Serial.println(" out of range ");
   }
