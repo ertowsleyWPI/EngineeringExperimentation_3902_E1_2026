@@ -46,7 +46,7 @@ void setup() {
 
    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
   {
-    Serial.println("SSD1306 Allocation Failed");
+    Serial.println(F("SSD1306 Allocation Failed"));
     while (true);
   }
 
@@ -70,9 +70,9 @@ void setup() {
 
   Serial.println(F("VL53L0X API Simple Ranging example\n\n"));
 
-  Serial.print("Time in Milliseconds");
-  Serial.print(" , ");
-  Serial.println("Distance");
+  Serial.print(F("Time in Milliseconds"));
+  Serial.print(F(" , "));
+  Serial.println(F("Distance"));
 
 }
 
@@ -102,13 +102,13 @@ void loop() {
   lox.rangingTest(&measure, false);  // pass in 'true' to get debug data printout!
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance (mm): ");
+    Serial.print(F("Distance (mm): "));
     distanceToF = measure.RangeMilliMeter;
     Serial.println(distanceToF);
   } else {
-    Serial.println(" out of range ");
+    Serial.println(F(" out of range "));
   }
-    Serial.print(" , ");
+    Serial.print(F(" , "));
     Serial.println(distanceUS);
 
   delay(1000); // to make debugging easier
@@ -119,12 +119,12 @@ void loop() {
   display.setTextSize(1);
   display.setCursor(0,0);
   display.setCursor(0, 20);
-  display.println("ToF Distance: ");
+  display.println(F("ToF Distance: "));
   display.print(distanceToF);
-  display.println(" mm");
-  display.println("US Distance: ");
+  display.println(F(" mm"));
+  display.println(F("US Distance: "));
   display.print(distanceUS);
-  display.println(" cm");
+  display.println(F(" cm"));
 
   display.display();
   delay(100);
