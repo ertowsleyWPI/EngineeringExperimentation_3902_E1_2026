@@ -49,7 +49,8 @@ void setup() {
 void loop() {
   VL53L0X_RangingMeasurementData_t measure;
 
-  Serial.print(millis() + " ");
+  Serial.print(millis());
+  Serial.print(" , ");
   lox.rangingTest(&measure, false);  // pass in 'true' to get debug data printout!
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
