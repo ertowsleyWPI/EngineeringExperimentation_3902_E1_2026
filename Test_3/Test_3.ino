@@ -30,6 +30,9 @@ SSD1306AsciiWire display;
 
 const int trigPin = 4; //Ultrasonic Pulse Trigger Pin
 const int echoPin = 5; //Ultrasonic Pulse Echo Pin
+const int irPin = 8; // IR Sensor Pin
+
+int irState; // Indicates the sensor being triggered or not
 
 float distanceUS, distanceToF, duration;
 
@@ -41,6 +44,7 @@ void setup() {
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  pinMode(irPin, INPUT);
 
   Wire.begin();
   display.begin(&Adafruit128x64, I2C_ADDRESS);
@@ -86,6 +90,8 @@ void loop() {
 
   distanceUS = 10 * (duration * 0.0343) / 2;
 
+  irState = digitalRead(irPin);
+
   //ToF Sensor Related
   
   VL53L0X_RangingMeasurementData_t measure;
@@ -119,6 +125,14 @@ void loop() {
   display.print(distanceUS);
   display.println(" mm");
   
+  display.println("IR Status: ");
+    if (irState == LOW){
+      display.println("Object Detected"); // Low behavior is a returned signal
+    } else {
+        display.println("Clear");
+    }
+
+
   // Removed display.display();
 
 }
