@@ -34,7 +34,7 @@ const int irPin = 8; // IR Sensor Pin
 
 int irState; // Indicates the sensor being triggered or not
 
-float distanceUS, distanceToF, duration;
+float distanceUS, distanceToF, duration, distCorrect;
 
 //Create an object of the Adafruit_VL53L0X class
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
@@ -92,6 +92,8 @@ void loop() {
 
   irState = digitalRead(irPin);
 
+  distCorrect = 11.55; // This is a magic number taken from the CoolTerm work, where the average difference was 11.55mm. Once smoothed byt this ammount, the results were shockily close to each other.
+
   //ToF Sensor Related
   
   VL53L0X_RangingMeasurementData_t measure;
@@ -102,10 +104,11 @@ void loop() {
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print(F("Distance (mm): "));
-    distanceToF = measure.RangeMilliMeter;
+    distanceToF = measure.RangeMilliMeter - distCorrect;
     Serial.println(distanceToF);
   } else {
     Serial.println(F(" out of range "));
+    distanceToF = 0 ; // This should unlock the hung stage of the TOF sensor when the object is removed. If it shows 0 it simply does not detect and object at that time.
   }
     Serial.print(F(" , "));
     Serial.println(distanceUS);
