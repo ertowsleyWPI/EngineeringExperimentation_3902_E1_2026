@@ -54,14 +54,14 @@ void loop() {
   //main code loops
 
   Serial.println("Moving Clockwise");
-  for(int i = 0; i < 30* StepsPerRev; i++) {
+  for(long i = 0; i < 300L* StepsPerRev; i++) { // 300 is 3 minutes at 100RPM
     nema17Stepper.step(1); 
     checkSensor();
   }
   delay(1000);
 
   Serial.println("Moving Counter Clockwise");
-  for(int i = 0; i < 30* StepsPerRev; i++) {
+  for(long i = 0; i < 300L* StepsPerRev; i++) {
     nema17Stepper.step(-1); 
     checkSensor();
   }
