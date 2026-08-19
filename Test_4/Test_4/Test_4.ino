@@ -20,7 +20,7 @@ void setup() {
 
   //Motor Speed (rpm)
 
-  nema17Stepper.setSpeed(10);
+  nema17Stepper.setSpeed(100);
 
   Serial.begin(9600);
 
@@ -34,14 +34,14 @@ void loop() {
   //main code loops
 
   Serial.println("Moving Clockwise");
-  for(int i = 0; i < StepsPerRev; i++) {
+  for(int i = 0; i < 30* StepsPerRev; i++) {
     nema17Stepper.step(1); 
     checkSensor();
   }
   delay(1000);
 
   Serial.println("Moving Counter Clockwise");
-  for(int i = 0; i < StepsPerRev; i++) {
+  for(int i = 0; i < 30* StepsPerRev; i++) {
     nema17Stepper.step(-1); 
     checkSensor();
   }
