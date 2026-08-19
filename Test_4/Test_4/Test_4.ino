@@ -13,6 +13,10 @@ int lastVal2 = 1;
 Adafruit_MPU6050 mpu3;
 
 
+// Timer variables to prevent serial flooding
+unsigned long lastDataTime = 0;
+const int dataInterval = 100; // Output IMU data every 100 milliseconds
+
 //Stepper Library
 // (Steps, AIN1, AIN2, BIN1, BIN2)
 Stepper nema17Stepper(StepsPerRev, 5, 6, 4, 7);
@@ -26,7 +30,7 @@ void setup() {
 
   nema17Stepper.setSpeed(100);
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   Serial.println("NEMA 17 is initialized with TB6612");
   while (!Serial)
@@ -83,29 +87,22 @@ void checkSensor() {
     lastVal2 = val2; // Update the state
   }
 
-  sensors_event_t a3, g3, temp3;
-  mpu3.getEvent(&a3, &g3, &temp3);
+  // Non-blocking timer for the IMU data
+  unsigned long currentTime = millis();
+  if (currentTime - lastDataTime >= dataInterval) {
+    sensors_event_t a3, g3, temp3;
+    mpu3.getEvent(&a3, &g3, &temp3);
 
-  /* Print out the values */
-  Serial.print("Acceleration X: ");
-  Serial.print(a3.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a3.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a3.acceleration.z);
-  Serial.println(" m/s^2");
+    Serial.print("Time: "); Serial.print(currentTime);
+    Serial.print(" ms | Accel: "); Serial.print(a3.acceleration.x);
+    Serial.print(", "); Serial.print(a3.acceleration.y);
+    Serial.print(", "); Serial.print(a3.acceleration.z);
+    Serial.print(" | Gyro: "); Serial.print(g3.gyro.x);
+    Serial.print(", "); Serial.print(g3.gyro.y);
+    Serial.print(", "); Serial.print(g3.gyro.z);
+    Serial.print(" | Temp: "); Serial.println(temp3.temperature);
 
-  Serial.print("Rotation X: ");
-  Serial.print(g3.gyro.x);
-  Serial.print(", Y: ");
-  Serial.print(g3.gyro.y);
-  Serial.print(", Z: ");
-  Serial.print(g3.gyro.z);
-  Serial.println(" rad/s");
-
-  Serial.print("Temperature: ");
-  Serial.print(temp3.temperature);
-  Serial.println(" degC");
-  
+    lastDataTime = currentTime; // Reset the timer
+  }
 
 }
