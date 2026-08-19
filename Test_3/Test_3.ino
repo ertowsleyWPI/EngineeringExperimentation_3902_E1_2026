@@ -92,7 +92,7 @@ void loop() {
 
   irState = digitalRead(irPin);
 
-  distCorrect = 11.55; // This is a magic number taken from the CoolTerm work, where the average difference was 11.55mm. Once smoothed byt this ammount, the results were shockily close to each other.
+  distCorrect = 11.55; // This is a magic number taken from the CoolTerm work, where the average difference was 11.55mm. Once smoothed byt this ammount, the results were shockily close to each other.0
 
   //ToF Sensor Related
   
@@ -104,7 +104,8 @@ void loop() {
 
   if (measure.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print(F("Distance (mm): "));
-    distanceToF = measure.RangeMilliMeter - distCorrect;
+    // distanceToF = measure.RangeMilliMeter - distCorrect; Tried initially but I believe it messed with some of the internal calibrations to these sensors
+    distanceToF = measure.RangeMilliMeter;
     Serial.println(distanceToF);
   } else {
     Serial.println(F(" out of range "));
