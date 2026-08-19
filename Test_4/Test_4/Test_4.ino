@@ -12,6 +12,13 @@ int val2; // 1: Magnetic field detected, 0: No magnetic field detected
 int lastVal2 = 1;
 Adafruit_MPU6050 mpu3;
 
+//Part 3
+
+unsigned long previousStepMicros = 0; //
+//50 RPM (doesnt need to be as fast for 3 whole minutes) = 1.2s/rot. 4s/200steps = 0.006 seconds = 6000 microseconds
+unsigned long stepIntervalMicros = 6000;
+long stepCount = 0;
+float angle = 0.0;
 
 // Timer variables to prevent serial flooding
 unsigned long lastDataTime = 0;
@@ -28,14 +35,14 @@ void setup() {
 
   //Motor Speed (rpm)
 
-  nema17Stepper.setSpeed(100);
+  nema17Stepper.setSpeed(50);
 
   Serial.begin(115200);
 
   Serial.println("NEMA 17 is initialized with TB6612");
-  while (!Serial)
+  while (!Serial){
     delay(10); // will pause Zero, Leonardo, etc until serial console opens
-
+  }
   Serial.println("Adafruit MPU6050 test!");
 
   // Try to initialize MPU at I2C address 3 (change this to your MPU's actual address)!
@@ -46,6 +53,7 @@ void setup() {
     }
   }
   Serial.println("MPU6050 Found!");
+  Serial.println("Time(ms),StepCount,Angle(deg),HallEffect,GyroX,GyroY,GyroZ");
 
 }
 
@@ -53,20 +61,44 @@ void loop() {
 
   //main code loops
 
-  Serial.println("Moving Clockwise");
-  for(long i = 0; i < 300L* StepsPerRev; i++) { // 300 is 3 minutes at 100RPM
-    nema17Stepper.step(1); 
-    checkSensor();
-  }
-  delay(1000);
+  long targetSteps = 30000; // 3 min * 50rpm = 150 rots 150 * 200 = 30000steps.
+  stepCount = 0;
+  angle = 0.0;
+ 
+ // Serial.println("Moving Clockwise");
+  //for(long i = 0; i < 300L* StepsPerRev; i++) { // 300 is 3 minutes at 100RPM
+ //   nema17Stepper.step(1); 
+ //   checkSensor();
+ // }
+  //delay(1000);
 
-  Serial.println("Moving Counter Clockwise");
-  for(long i = 0; i < 300L* StepsPerRev; i++) {
-    nema17Stepper.step(-1); 
-    checkSensor();
+  //Serial.println("Moving Counter Clockwise");
+  //for(long i = 0; i < 300L* StepsPerRev; i++) {
+  //  nema17Stepper.step(-1); 
+  //  checkSensor();
+  //}
+
+  // Non-blocking step execution using micros()
+  while (stepCount < targetSteps) {
+    unsigned long currentMicros = micros();
+    
+    // Trigger exactly when the interval has passed
+    if (currentMicros - previousStepMicros >= stepIntervalMicros) {
+      previousStepMicros = currentMicros;
+      
+      // Step -1 (CCW) to match the PMKS simulation parameters
+      nema17Stepper.step(-1); 
+      stepCount++;
+      
+      // Calculate approximate angle (1.8 deg per step)
+      angle = stepCount * 1.8; 
+      
+      // Output data instantly upon stepping
+      checkSensorAndPrint(); 
+    }
   }
 
-  delay(1000);
+  delay(5000); // Delay now 5s
 
 
 
@@ -74,35 +106,24 @@ void loop() {
 }
 
 
-void checkSensor() {
+void checkSensorAndPrint() {
   val2 = digitalRead(sensor2);
   
-  // Only print if the sensor state has CHANGED (prevents massive text spam)
-  if (val2 != lastVal2) {
-    if (val2 == 0) {
-      Serial.println("Magnet is detected!");
-    } else {
-      Serial.println("Magnet is not detected.");
-    }
-    lastVal2 = val2; // Update the state
-  }
+  sensors_event_t a3, g3, temp3;
+  mpu3.getEvent(&a3, &g3, &temp3);
 
-  // Non-blocking timer for the IMU data
-  unsigned long currentTime = millis();
-  if (currentTime - lastDataTime >= dataInterval) {
-    sensors_event_t a3, g3, temp3;
-    mpu3.getEvent(&a3, &g3, &temp3);
-
-    Serial.print("Time: "); Serial.print(currentTime);
-    Serial.print(" ms | Accel: "); Serial.print(a3.acceleration.x);
-    Serial.print(", "); Serial.print(a3.acceleration.y);
-    Serial.print(", "); Serial.print(a3.acceleration.z);
-    Serial.print(" | Gyro: "); Serial.print(g3.gyro.x);
-    Serial.print(", "); Serial.print(g3.gyro.y);
-    Serial.print(", "); Serial.print(g3.gyro.z);
-    Serial.print(" | Temp: "); Serial.println(temp3.temperature);
-
-    lastDataTime = currentTime; // Reset the timer
-  }
-
+  // STRICTLY SPACE-FREE FORMATTING: Time,Step,Angle,Hall,GyroX,GyroY,GyroZ
+  Serial.print(millis());
+  Serial.print(",");
+  Serial.print(stepCount);
+  Serial.print(",");
+  Serial.print(angle);
+  Serial.print(",");
+  Serial.print(val2);
+  Serial.print(",");
+  Serial.print(g3.gyro.x);
+  Serial.print(",");
+  Serial.print(g3.gyro.y);
+  Serial.print(",");
+  Serial.println(g3.gyro.z);
 }
