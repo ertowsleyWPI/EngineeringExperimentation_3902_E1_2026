@@ -23,7 +23,7 @@ void setup() {
   //motor starts off
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
-  digitalWrite(enA, 0);
+  digitalWrite(enA, LOW);
 
   Serial.println("ESP 32 Trials");
   Serial.println("Type 'Start' to turn motor on");
@@ -32,45 +32,34 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // 1. Check if a new message has arrived
+  if (Serial.available() > 0) { 
 
-  if (Serial.available() > 0) {//Checks the terminal for input 
-
-    String command = Serial.readStringUntil('\n');
-
+    // 2. Read and format the message
+    command = Serial.readStringUntil('\n');
     command.trim();
-    command.toUpperCase(); //corrects small letters
+    command.toUpperCase(); 
 
-    Serial.println("Command Recieved");
+    Serial.println("Command Received:");
     Serial.println(command);
 
-    //Motor Commands
-
+    // 3. Process the command INSIDE the Serial.available block
     if (command == "START") {
-
       digitalWrite(in1, HIGH);
-      digitalWrite(in2, HIGH);
-      analogWrite(enA, 200);
+      digitalWrite(in2, LOW); 
+      digitalWrite(enA, HIGH); // Using 150 to ensure enough voltage to start
 
       Serial.println("Motor is Running");
 
-
     } else if (command == "STOP") {
-
       digitalWrite(in1, LOW);
       digitalWrite(in2, LOW);
-      analogWrite(enA, 0);
+      digitalWrite(enA, LOW);
 
       Serial.println("Motor is not Running");
-
     }
 
-
-
-
-
-  }
-
+  } // <-- 4. THIS is where the Serial.available block must close. 
 }
 
 
