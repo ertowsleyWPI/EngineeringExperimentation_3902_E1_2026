@@ -15,8 +15,8 @@ Adafruit_MPU6050 mpu3;
 //Part 3
 
 unsigned long previousStepMicros = 0; //
-//50 RPM (doesnt need to be as fast for 3 whole minutes) = 1.2s/rot. 4s/200steps = 0.006 seconds = 6000 microseconds
-unsigned long stepIntervalMicros = 6000;
+//50 RPM (doesnt need to be as fast for 3 whole minutes) = 0.6s/rot. .6s/200steps = 0.003 seconds = 3000 microseconds
+unsigned long stepIntervalMicros = 3000;
 long stepCount = 0;
 float angle = 0.0;
 
@@ -35,7 +35,7 @@ void setup() {
 
   //Motor Speed (rpm)
 
-  nema17Stepper.setSpeed(50);
+  nema17Stepper.setSpeed(100);
 
   Serial.begin(115200);
 
@@ -61,7 +61,7 @@ void loop() {
 
   //main code loops
 
-  long targetSteps = 30000; // 3 min * 50rpm = 150 rots 150 * 200 = 30000steps.
+  long targetSteps = 60000; // 3 min * 100rpm = 300 rots 300 * 200 = 60000steps.
   stepCount = 0;
   angle = 0.0;
  
