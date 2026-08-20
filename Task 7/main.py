@@ -2,8 +2,8 @@ from machine import ADC, Pin, PWM
 import time
 
 # Pin Setup
-adc = ADC(Pin(31))
-servo = PWM(Pin(20))
+adc = ADC(Pin(26))
+servo = PWM(Pin(15))
 servo.freq(50)
 
 # Circuit Constants
@@ -29,6 +29,12 @@ while True:
     
     # Calculate Voltage
     v_out = (adc_val / 65535.0) * VCC
+    
+    # Calculate Resistance of your Foam
+    r_fsr = R_DIVIDER * ((VCC / v_out) - 1.0)
+    
+    # Add this line right here!
+    print("Resistance:", r_fsr)
     
     # Prevent divide-by-zero errors
     if v_out <= 0.01:
