@@ -14,8 +14,8 @@ print(f"{'V_A (V)':<10}{'V_B (V)':<10}{'V_out (Diff)':<15}")
 while True:
     # Take multiple samples to reduce analog noise
     
-    raw_A = sum(adc_A.read_u16() for _ in range(20)) / 20
-    raw_B = sum(adc_B.read_u16() for _ in range(20)) / 20
+    raw_A = sum(adc_A.read_u16() for _ in range(30)) / 30
+    raw_B = sum(adc_B.read_u16() for _ in range(30)) / 30
     
     # Convert raw data to actual Voltage
     v_A = raw_A * VOLTAGE_FACTOR
@@ -25,6 +25,6 @@ while True:
     v_out = v_A - v_B
     
     # Print formatted metrics
-    print(f"{v_A:.4f} {v_B:.4f} {v_out:.4f} V")
+    print(f"{v_A:.4f} {v_B:.4f} {v_out:+.4f} V")
     
     time.sleep(0.5)
